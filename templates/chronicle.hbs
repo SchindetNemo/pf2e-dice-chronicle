@@ -1,11 +1,21 @@
 <div class="chronicle-root">
   <nav class="chronicle-tabs">
-    <button type="button" class="{{#unless isCampaign}}active{{/unless}}" data-action="setView" data-view="session"><i class="fa-solid fa-calendar-day"></i> {{localize "CHRONICLE.Tab.Session"}}</button>
+    <button type="button" class="{{#unless isCampaign}}{{#unless isDice}}active{{/unless}}{{/unless}}" data-action="setView" data-view="session"><i class="fa-solid fa-calendar-day"></i> {{localize "CHRONICLE.Tab.Session"}}</button>
     <button type="button" class="{{#if isCampaign}}active{{/if}}" data-action="setView" data-view="campaign"><i class="fa-solid fa-book-skull"></i> {{localize "CHRONICLE.Tab.Campaign"}}</button>
+    <button type="button" class="{{#if isDice}}active{{/if}}" data-action="setView" data-view="dice"><i class="fa-solid fa-chart-column"></i> {{localize "CHRONICLE.Tab.Dice"}}</button>
   </nav>
 
   <header class="chronicle-bar">
-    {{#if isCampaign}}
+    {{#if isDice}}
+      <div class="chronicle-title">{{#if diceCampaign}}{{localize "CHRONICLE.DiceStats.Campaign"}}{{else}}{{localize "CHRONICLE.DiceStats.Session"}}{{/if}}</div>
+      {{#unless diceCampaign}}{{#if hasSession}}
+      <select name="session" aria-label="{{localize 'CHRONICLE.Session.Select'}}">
+        {{#each sessionOptions}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+      </select>
+      {{/if}}{{/unless}}
+      <span class="chronicle-spacer"></span>
+      <button type="button" data-action="toggleDiceScope"><i class="fa-solid fa-right-left"></i> {{#if diceCampaign}}{{localize "CHRONICLE.DiceStats.ToSession"}}{{else}}{{localize "CHRONICLE.DiceStats.ToCampaign"}}{{/if}}</button>
+    {{else if isCampaign}}
       <div class="chronicle-title">{{localize "CHRONICLE.Campaign.Title"}} <small>{{localize "CHRONICLE.Campaign.Sessions" n=sessionCount}}</small></div>
     {{else if hasSession}}
       <select name="session" aria-label="{{localize 'CHRONICLE.Session.Select'}}">
@@ -15,8 +25,8 @@
     {{else}}
       <div class="chronicle-title">{{localize "CHRONICLE.Session.None"}}</div>
     {{/if}}
-    <span class="chronicle-spacer"></span>
-    {{#if isGM}}
+    {{#unless isDice}}<span class="chronicle-spacer"></span>{{/unless}}
+    {{#if isGM}}{{#unless isDice}}
       {{#unless isCampaign}}
         {{#unless hasLive}}<button type="button" data-action="startSession"><i class="fa-solid fa-play"></i> {{localize "CHRONICLE.Session.Start"}}</button>{{/unless}}
         {{#if isLive}}<button type="button" data-action="endSession"><i class="fa-solid fa-flag-checkered"></i> {{localize "CHRONICLE.Session.End"}}</button>{{/if}}
@@ -25,13 +35,54 @@
           <button type="button" class="icon" data-action="deleteSession" data-tooltip="CHRONICLE.Session.Delete"><i class="fa-solid fa-trash"></i></button>
         {{/if}}
       {{/unless}}
-    {{/if}}
+    {{/unless}}{{/if}}
     {{#if hasData}}<button type="button" class="icon" data-action="exportSession" data-tooltip="CHRONICLE.Export"><i class="fa-solid fa-file-export"></i></button>{{/if}}
-    {{#if isGM}}{{#if isCampaign}}<button type="button" class="icon" data-action="resetAll" data-tooltip="CHRONICLE.Reset.Title"><i class="fa-solid fa-skull"></i></button>{{/if}}{{/if}}
+    {{#if isGM}}{{#if isCampaign}}{{#unless isDice}}<button type="button" class="icon" data-action="resetAll" data-tooltip="CHRONICLE.Reset.Title"><i class="fa-solid fa-skull"></i></button>{{/unless}}{{/if}}{{/if}}
   </header>
 
   <div class="chronicle-scroll">
-  {{#if hasData}}
+  {{#if isDice}}
+    {{#if hasData}}
+      {{#if awards.length}}
+      <h3>{{#if diceCampaign}}{{localize "CHRONICLE.Campaign.Awards"}}{{else}}{{localize "CHRONICLE.Awards"}}{{/if}}</h3>
+      <section class="chronicle-awards">
+        {{#each awards}}
+        <article class="award award-{{id}}">
+          <i class="fa-solid {{icon}}"></i>
+          <div><h4>{{title}}</h4><div class="winner {{#if big}}big{{/if}}">{{winner}}</div><div class="value">{{value}}</div><em>{{flavor}}</em></div>
+        </article>
+        {{/each}}
+      </section>
+      {{/if}}
+
+      {{#if table}}
+      <h3>{{localize "CHRONICLE.DiceStats.Table"}} <small>({{table.d20s}} d20)</small></h3>
+      <div class="dice-card">
+        <div class="dice-meta">{{localize "CHRONICLE.DiceStats.Distribution"}} · {{localize "CHRONICLE.DiceStats.Favorite"}}: <b>{{table.favorite}}</b></div>
+        <div class="dice-chart">
+          {{#each table.bars}}<div class="bar {{cls}}" data-tooltip="{{n}}: {{c}} ({{share}}%)"><em>{{c}}</em><div class="col"><span class="fill" style="height: {{pct}}%"></span></div><b>{{n}}</b></div>{{/each}}
+        </div>
+      </div>
+      {{/if}}
+
+      {{#each dicePlayers}}
+      <h3>{{name}}{{#if characters}} <small>({{characters}})</small>{{/if}}</h3>
+      <div class="dice-card">
+        <div class="dice-meta">
+          {{d20s}} d20 · {{localize "CHRONICLE.Stat.AvgD20"}} <b>{{avgD20}}</b> · {{localize "CHRONICLE.Stat.Luck"}} <b>{{luckLabel}}</b> ·
+          <span class="crit">{{crits}} {{localize "CHRONICLE.Stat.Crits"}}</span> · <span class="fumble">{{fumbles}} {{localize "CHRONICLE.Stat.Fumbles"}}</span> ·
+          {{localize "CHRONICLE.DiceStats.Favorite"}}: <b>{{favorite}}</b> · {{dice}} {{localize "CHRONICLE.Stat.Dice"}} total
+        </div>
+        <div class="dice-chart">
+          {{#each bars}}<div class="bar {{cls}}" data-tooltip="{{n}}: {{c}} ({{share}}%)"><em>{{c}}</em><div class="col"><span class="fill" style="height: {{pct}}%"></span></div><b>{{n}}</b></div>{{/each}}
+        </div>
+      </div>
+      {{else}}<p class="hint">{{localize "CHRONICLE.DiceStats.NoD20"}}</p>
+      {{/each}}
+    {{else}}
+      <p class="hint empty">{{localize "CHRONICLE.Empty"}}</p>
+    {{/if}}
+  {{else if hasData}}
     <section class="chronicle-summary">
       <div><b>{{stats.totals.rolls}}</b><span>{{localize "CHRONICLE.Stat.Rolls"}}</span></div>
       <div><b>{{stats.totals.dice}}</b><span>{{localize "CHRONICLE.Stat.Dice"}}</span></div>
@@ -56,9 +107,9 @@
       </article>
       {{/each}}
     </section>
-    {{else}}<p class="hint">{{localize "CHRONICLE.Awards.None" n=minD20}}</p>{{/if}}
+    {{else}}<p class="hint">{{localize "CHRONICLE.AwardsNone" n=minD20}}</p>{{/if}}
 
-    <h3>{{localize "CHRONICLE.Moments"}}</h3>
+    <h3>{{#if isCampaign}}{{localize "CHRONICLE.Campaign.Moments"}}{{else}}{{localize "CHRONICLE.Moments"}}{{/if}}</h3>
     {{#if moments.length}}
     <ul class="chronicle-moments">
       {{#each moments}}
@@ -68,7 +119,7 @@
       </li>
       {{/each}}
     </ul>
-    {{else}}<p class="hint">{{localize "CHRONICLE.Moments.None"}}</p>{{/if}}
+    {{else}}<p class="hint">{{localize "CHRONICLE.MomentsNone"}}</p>{{/if}}
 
     <h3>{{#if isCampaign}}{{localize "CHRONICLE.Campaign.Stats"}}{{else}}{{localize "CHRONICLE.PlayerStats"}}{{/if}}</h3>
     <table class="chronicle-table">

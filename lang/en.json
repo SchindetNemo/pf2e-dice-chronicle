@@ -7,12 +7,15 @@
     "NoAccess": "The GM has restricted access to the Dice Chronicle.",
     "Empty": "No rolls recorded yet. Roll some dice and they will appear here!",
     "Awards": "Session Awards",
-    "Moments": "Notable Moments",
+    "DiceStats": { "Title": "Dice Statistics", "Campaign": "Campaign dice statistics", "Session": "Session dice statistics",
+      "ToSession": "Switch to session statistics", "ToCampaign": "Switch to campaign statistics",
+      "Table": "Whole table", "Favorite": "Most rolled", "Distribution": "Every natural d20 result", "NoD20": "No d20 rolls recorded yet." },
+    "Moments": "Session Events",
     "PlayerStats": "Player Statistics",
     "RecentRolls": "Recent Rolls",
     "DeleteRoll": "Remove this roll from the record",
-    "Tab": { "Session": "Sessions", "Campaign": "Campaign" },
-    "Campaign": { "Title": "Full Campaign", "Sessions": "{n} session(s)", "Awards": "Campaign Awards", "Stats": "Campaign Statistics" },
+    "Tab": { "Session": "Sessions", "Campaign": "Campaign", "Dice": "Dice Stats" },
+    "Campaign": { "Title": "Full Campaign", "Sessions": "{n} session(s)", "Awards": "Campaign Awards", "Moments": "Campaign Events", "Stats": "Campaign Statistics" },
     "Session": {
       "Select": "Session", "None": "No session yet", "Ongoing": "ongoing", "Start": "Start Session", "End": "End Session",
       "EndConfirm": "End the live session and archive it?", "Rename": "Rename Session", "Delete": "Delete Session",
@@ -24,7 +27,7 @@
       "Player": "Player", "Rolls": "Rolls", "Dice": "Dice", "Crits": "Crits", "Fumbles": "Fumbles", "Players": "Players",
       "AvgD20": "Avg d20", "AvgDie": "Avg die roll", "AvgTotal": "Avg total", "Luck": "Luck"
     },
-    "Awards": { "None": "Awards appear once players have rolled at least {n} d20s." },
+    "AwardsNone": "Awards appear once players have rolled at least {n} d20s.",
     "Award": {
       "Lucky": { "Title": "Lady Luck’s Favorite", "Flavor": "Fortune smiles upon them." },
       "LuckyValue": "Luck {luck} (avg d20 {avg})",
@@ -47,7 +50,7 @@
       "Cold": { "Title": "Frozen Solid", "Flavor": "The dice have gone cold." },
       "ColdValue": "{n} d20s in a row of {max} or less"
     },
-    "Moments": { "None": "No streaks yet — keep rolling!" },
+    "MomentsNone": "No events yet — keep rolling!",
     "Moment": {
       "SAME": "Number Streak", "CRIT": "Crit Streak", "FUMBLE": "Fumble Streak", "HOT": "Hot Streak", "COLD": "Cold Streak",
       "Text": "{name}: {len} in a row",

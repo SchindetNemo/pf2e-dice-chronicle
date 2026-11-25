@@ -14,6 +14,7 @@ export class ChronicleApp extends HandlebarsApplicationMixin(ApplicationV2) {
     window: { title: "CHRONICLE.Title", icon: "fa-solid fa-dice-d20", resizable: true },
     actions: {
       setView: ChronicleApp.#onSetView,
+      toggleDiceScope: ChronicleApp.#onToggleScope,
       startSession: ChronicleApp.#onStart,
       endSession: ChronicleApp.#onEnd,
       renameSession: ChronicleApp.#onRename,
@@ -28,6 +29,12 @@ export class ChronicleApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   view = "session";
   sessionId = null;
+  diceScope = "campaign"; // dice tab defaults to campaign data
+
+  /** Whether the stats shown come from the whole campaign rather than one session. */
+  get useCampaign() {
+    return this.view === "campaign" || (this.view === "dice" && this.diceScope === "campaign");
+  }
 
   static open() {
     if (!game.user.isGM && !game.settings.get(MOD, "playerAccess")) {
@@ -53,8 +60,10 @@ export class ChronicleApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const session = this.session;
     const minD20 = game.settings.get(MOD, "minD20");
     const isCampaign = this.view === "campaign";
+    const isDice = this.view === "dice";
+    const useCampaign = this.useCampaign;
 
-    const stats = isCampaign
+    const stats = useCampaign
       ? computeStats(sessions.map(s => s.rolls), { minD20: minD20 * 2 })
       : computeStats(session ? [session.rolls] : [], { minD20 });
 
@@ -63,7 +72,7 @@ export class ChronicleApp extends HandlebarsApplicationMixin(ApplicationV2) {
       label: `${s.end ? "" : "● "}${s.name} (${s.rolls.length})`
     }));
 
-    const rolls = (!isCampaign && session ? session.rolls.slice(-40).reverse() : []).map(r => ({
+    const rolls = (!useCampaign && !isDice && session ? session.rolls.slice(-40).reverse() : []).map(r => ({
       id: r.id,
       time: new Date(r.ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       who: r.un, char: r.an ?? "", type: r.ty ?? "roll", total: r.tot, dice: r.d,
@@ -71,7 +80,27 @@ export class ChronicleApp extends HandlebarsApplicationMixin(ApplicationV2) {
       cls: r.n?.includes(20) ? "crit" : r.n?.includes(1) ? "fumble" : ""
     }));
 
+    // Dice tab: histogram of every natural d20 result, per player and for the whole table
+    const bars = (hist) => {
+      const max = Math.max(1, ...hist), tot = hist.reduce((a, b) => a + b, 0);
+      return hist.map((c, i) => ({
+        n: i + 1, c, pct: Math.round((c / max) * 100), share: tot ? Math.round((c / tot) * 1000) / 10 : 0,
+        cls: i === 19 ? "crit" : i === 0 ? "fumble" : ""
+      }));
+    };
+    const favorite = (hist) => {
+      const max = Math.max(...hist);
+      return max ? hist.map((c, i) => (c === max ? i + 1 : null)).filter(Boolean).join(", ") : "–";
+    };
+    const tableHist = Array(20).fill(0);
+    for (const p of stats.players) p.hist.forEach((c, i) => (tableHist[i] += c));
+    const dicePlayers = isDice ? stats.players.filter(p => p.d20s > 0).sort((a, b) => b.d20s - a.d20s)
+      .map(p => ({ ...p, bars: bars(p.hist), favorite: favorite(p.hist) })) : [];
+    const table = isDice && tableHist.some(Boolean)
+      ? { bars: bars(tableHist), favorite: favorite(tableHist), d20s: tableHist.reduce((a, b) => a + b, 0) } : null;
+
     return {
+      isDice, diceCampaign: this.diceScope === "campaign", dicePlayers, table,
       isGM: game.user.isGM,
       isCampaign, view: this.view,
       hasSession: !!session, session,
@@ -83,8 +112,8 @@ export class ChronicleApp extends HandlebarsApplicationMixin(ApplicationV2) {
       sessionCount: sessions.length,
       stats, hasData: stats.totals.rolls > 0,
       awards: stats.awards,
-      moments: stats.moments.slice(0, isCampaign ? 15 : 12).map(describeMoment),
-      players: stats.players, rolls, minD20: isCampaign ? minD20 * 2 : minD20
+      moments: stats.moments.slice(0, useCampaign ? 15 : 12).map(describeMoment),
+      players: stats.players, rolls, minD20: useCampaign ? minD20 * 2 : minD20
     };
   }
 
@@ -95,6 +124,7 @@ export class ChronicleApp extends HandlebarsApplicationMixin(ApplicationV2) {
     });
   }
 
+  static #onToggleScope() { this.diceScope = this.diceScope === "campaign" ? "session" : "campaign"; this.render(); }
   static #onSetView(ev, target) { this.view = target.dataset.view; this.render(); }
   static async #onStart() {
     const name = await DialogV2.prompt({
@@ -138,9 +168,9 @@ export class ChronicleApp extends HandlebarsApplicationMixin(ApplicationV2) {
     await deleteSession(s.id);
   }
   static #onExport() {
-    const sessions = this.view === "campaign" ? allSessions() : [this.session].filter(Boolean);
+    const sessions = this.useCampaign ? allSessions() : [this.session].filter(Boolean);
     if (!sessions.length) return;
-    const name = this.view === "campaign" ? "campaign" : sessions[0].name.slugify();
+    const name = this.useCampaign ? "campaign" : sessions[0].name.slugify();
     foundry.utils.saveDataToFile(JSON.stringify(sessions, null, 2), "application/json", `dice-chronicle-${name}.json`);
   }
   static async #onDeleteRoll(ev, target) {

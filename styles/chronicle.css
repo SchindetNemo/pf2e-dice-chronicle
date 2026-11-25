@@ -66,3 +66,17 @@
 .chronicle-chat.same > i { color: #8e44ad; }
 .chronicle-moments li.same > i { color: #8e44ad; }
 .chronicle-chat.award > i { color: #c9a227; }
+
+.chronicle .chronicle-tabs { flex-wrap: wrap; }
+.chronicle h3 small { font-weight: normal; opacity: .65; font-size: .75em; }
+.dice-card { padding: 8px 10px 6px; border-radius: 8px; background: #8881; }
+.dice-meta { font-size: .85em; margin-bottom: 6px; }
+.dice-chart { display: flex; gap: 3px; height: 130px; align-items: stretch; }
+.dice-chart .bar { flex: 1; display: flex; flex-direction: column; align-items: center; min-width: 0; }
+.dice-chart .bar em { font-style: normal; font-size: .65em; opacity: .75; height: 1.2em; line-height: 1.2em; }
+.dice-chart .bar .col { flex: 1; width: 100%; display: flex; align-items: flex-end; border-bottom: 1px solid #8886; }
+.dice-chart .bar .fill { display: block; width: 100%; min-height: 1px; background: var(--c-cold); border-radius: 3px 3px 0 0; }
+.dice-chart .bar.crit .fill { background: var(--c-crit); }
+.dice-chart .bar.fumble .fill { background: var(--c-fumble); }
+.dice-chart .bar b { font-size: .7em; padding-top: 2px; }
+.dice-chart .bar:hover .fill { filter: brightness(1.25); }

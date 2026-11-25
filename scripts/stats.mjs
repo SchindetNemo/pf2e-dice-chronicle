@@ -62,7 +62,7 @@ export function computeStats(rollSets, { minD20 = 5 } = {}) {
     if (!players.has(r.u)) {
       players.set(r.u, {
         id: r.u, name: r.un, characters: new Set(), rolls: 0, dice: 0, d20s: 0,
-        d20Sum: 0, low: 0, high: 0, crits: 0, fumbles: 0, totalSum: 0,
+        hist: Array(20).fill(0), d20Sum: 0, low: 0, high: 0, crits: 0, fumbles: 0, totalSum: 0,
         best: null, worst: null, successes: 0, critSuccesses: 0, failures: 0, critFailures: 0
       });
     }
@@ -85,6 +85,7 @@ export function computeStats(rollSets, { minD20 = 5 } = {}) {
       else if (r.ot === "criticalFailure") p.critFailures++;
       for (const v of r.n ?? []) {
         p.d20s++; p.d20Sum += v;
+        if (v >= 1 && v <= 20) p.hist[v - 1]++;
         if (v < 5) p.low++;
         if (v > 15) p.high++;
         if (v === 20) p.crits++;
