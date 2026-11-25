@@ -46,9 +46,9 @@
       "HighValue": "{n} d20s over 15",
       "Number": { "Title": "Lucky Number", "Flavor": "The number the dice love most." },
       "NumberValue": "Rolled {n} times; most by {who} ({k}×)",
-      "Hot": { "Title": "High Streak", "Flavor": "Absolutely on fire." },
+      "Hot": { "Title": "Longest High Streak", "Flavor": "Absolutely on fire." },
       "HotValue": "{n} d20s in a row of {min}+",
-      "Cold": { "Title": "Low Streak", "Flavor": "The dice have gone cold." },
+      "Cold": { "Title": "Longest Low Streak", "Flavor": "The dice have gone cold." },
       "ColdValue": "{n} d20s in a row of {max} or less"
     },
     "MomentsNone": "No events yet — keep rolling!",
