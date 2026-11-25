@@ -35,7 +35,7 @@
       "LuckyValue": "Luck {luck} (avg d20 {avg})",
       "Cursed": { "Title": "Cursed by the Dice Gods", "Flavor": "What did they ever do to deserve this?" },
       "CursedValue": "Luck {luck} (avg d20 {avg})",
-      "Crit": { "Title": "Highest Crit Streak", "Flavor": "Natural 20s on demand." },
+      "Crit": { "Title": "Most Crits", "Flavor": "Natural 20s on demand." },
       "CritValue": "{n} natural 20s",
       "Fumble": { "Title": "Most Cursed", "Flavor": "Long live the natural 1." },
       "FumbleValue": "{n} natural 1s",
