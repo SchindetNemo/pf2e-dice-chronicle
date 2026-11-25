@@ -75,7 +75,11 @@ export class ChronicleApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const stats = useCampaign
       ? computeStats(sessions.map(s => s.rolls), { minD20: minD20 * 2 })
       : computeStats(this.#sessionRollSets(session), { minD20 });
-    if (this.view === "session") stats.players.sort((a, b) => Number(a.gm) - Number(b.gm) || b.rolls - a.rolls);
+    if (this.view === "session") {
+      // Awards use the GM as a single combined player; only the player list splits GM tokens.
+      if (session) stats.awards = computeStats([session.rolls], { minD20 }).awards;
+      stats.players.sort((a, b) => Number(a.gm) - Number(b.gm) || b.rolls - a.rolls);
+    }
 
     // The GM's token names would swamp the Campaign and Dice tabs, so hide them there (GM only).
     if (isCampaign || isDice) {
