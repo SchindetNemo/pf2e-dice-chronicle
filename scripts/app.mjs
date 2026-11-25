@@ -67,6 +67,11 @@ export class ChronicleApp extends HandlebarsApplicationMixin(ApplicationV2) {
       ? computeStats(sessions.map(s => s.rolls), { minD20: minD20 * 2 })
       : computeStats(session ? [session.rolls] : [], { minD20 });
 
+    // The GM's token names would swamp the Campaign and Dice tabs, so hide them there (GM only).
+    if (isCampaign || isDice) {
+      stats.players = stats.players.map(p => (game.users.get(p.id)?.isGM ? { ...p, characters: "" } : p));
+    }
+
     const options = [...sessions].reverse().map(s => ({
       id: s.id, selected: s.id === session?.id,
       label: `${s.end ? "" : "● "}${s.name} (${s.rolls.length})`
@@ -96,9 +101,7 @@ export class ChronicleApp extends HandlebarsApplicationMixin(ApplicationV2) {
     for (const p of stats.players) p.hist.forEach((c, i) => (tableHist[i] += c));
     const dicePlayers = isDice ? stats.players.filter(p => p.d20s > 0).sort((a, b) => b.d20s - a.d20s)
       .map(p => ({
-        ...p, bars: bars(p.hist), favorite: favorite(p.hist),
-        // In campaign scope the GM's many token names are just noise
-        characters: useCampaign && game.users.get(p.id)?.isGM ? "" : p.characters
+        ...p, bars: bars(p.hist), favorite: favorite(p.hist)
       })) : [];
     const table = isDice && tableHist.some(Boolean)
       ? { bars: bars(tableHist), favorite: favorite(tableHist), d20s: tableHist.reduce((a, b) => a + b, 0) } : null;
