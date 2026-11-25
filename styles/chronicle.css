@@ -57,6 +57,7 @@
 .chronicle-log li.crit { background: #2e9e5b22; } .chronicle-log li.fumble { background: #c0392b22; }
 .chronicle-log .t, .chronicle-log .ty { opacity: .65; }
 .chronicle-log .nat { text-align: right; font-weight: bold; }
+.chronicle-log .nat.other { font-weight: normal; opacity: .8; }
 .chronicle-log a { opacity: .4; } .chronicle-log a:hover { opacity: 1; color: var(--c-fumble); }
 
 .chronicle-chat ul { margin: 4px 0 0 16px; padding: 0; }

@@ -137,7 +137,7 @@
         <span class="t">{{time}}</span>
         <span class="who">{{who}}{{#if char}} <small>({{char}})</small>{{/if}}</span>
         <span class="ty">{{type}}</span>
-        <span class="nat">{{#if nat}}{{nat}}{{else}}–{{/if}}</span>
+        <span class="nat {{#unless nat}}other{{/unless}}">{{#if nat}}{{nat}}{{else}}{{total}}{{/if}}</span>
         {{#if ../isGM}}<a data-action="deleteRoll" data-id="{{id}}" data-tooltip="CHRONICLE.DeleteRoll"><i class="fa-solid fa-xmark"></i></a>{{/if}}
       </li>
       {{/each}}
