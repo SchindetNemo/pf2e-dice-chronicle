@@ -23,12 +23,12 @@ function post(icon, cls, html) {
 }
 
 /** Called by the active GM after a roll has been recorded in the live session. */
-export async function announce(entry, session) {
+export async function announce(entry, session, { secret = false } = {}) {
   if (!game.settings.get(MOD, "announce")) return;
   if (lastSession !== session.id) { lastSession = session.id; lastWinners.clear(); }
 
   // Streaks: look at the trailing run of this player's d20 results.
-  if (entry.n?.length) {
+  if (entry.n?.length && !secret) {
     const vals = session.rolls.filter(r => r.u === entry.u).flatMap(r => r.n ?? []);
     const name = esc(entry.un);
     const check = (pred, min, key, icon, cls, extra, skipIf) => {
@@ -53,6 +53,7 @@ export async function announce(entry, session) {
     if ((a.id === "Crit" || a.id === "Fumble") && a.raw < 2) continue;
     if (lastWinners.get(a.id) === a.winner) continue;
     lastWinners.set(a.id, a.winner);
+    if (secret) continue; // record the new leader silently so it is not announced later
     await post(a.icon, `award award-${a.id}`,
       `<b>${esc(a.title)}</b> — ${esc(a.winner)}. ${esc(a.value)}`);
   }

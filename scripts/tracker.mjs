@@ -73,8 +73,10 @@ export function initTracker() {
     try {
       const entry = extractEntry(message);
       if (!entry) return;
+      // Blind / private / self rolls are still recorded, but never announced in public chat.
+      const secret = !!message.blind || (message.whisper?.length ?? 0) > 0;
       const revealed = whenRevealed(message.id); // listen before the animation can finish
-      addRoll(entry).then(async live => { if (live) { await revealed; await announce(entry, live); } });
+      addRoll(entry).then(async live => { if (live) { await revealed; await announce(entry, live, { secret }); } });
     } catch (err) {
       console.error(`${MOD} | failed to track message`, err);
     }
