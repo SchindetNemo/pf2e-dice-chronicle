@@ -1,0 +1,78 @@
+{
+  "CHRONICLE": {
+    "Title": "Dice Chronicle",
+    "Open": "Open Dice Chronicle",
+    "Save": "Save",
+    "Export": "Export as JSON",
+    "NoAccess": "The GM has restricted access to the Dice Chronicle.",
+    "Empty": "No rolls recorded yet. Roll some dice and they will appear here!",
+    "Awards": "Session Awards",
+    "Moments": "Notable Moments",
+    "PlayerStats": "Player Statistics",
+    "RecentRolls": "Recent Rolls",
+    "DeleteRoll": "Remove this roll from the record",
+    "Tab": { "Session": "Sessions", "Campaign": "Campaign" },
+    "Campaign": { "Title": "Full Campaign", "Sessions": "{n} session(s)", "Awards": "Campaign Awards", "Stats": "Campaign Statistics" },
+    "Session": {
+      "Select": "Session", "None": "No session yet", "Ongoing": "ongoing", "Start": "Start Session", "End": "End Session",
+      "EndConfirm": "End the live session and archive it?", "Rename": "Rename Session", "Delete": "Delete Session",
+      "DeleteConfirm": "Permanently delete “{name}” and all of its rolls?", "Name": "Name", "OptionalName": "Leave blank for default",
+      "DefaultName": "Session {n} – {date}"
+    },
+    "Reset": { "Title": "Reset All Data", "Confirm": "Permanently delete ALL sessions and statistics? This cannot be undone." },
+    "Stat": {
+      "Player": "Player", "Rolls": "Rolls", "Dice": "Dice", "Crits": "Crits", "Fumbles": "Fumbles", "Players": "Players",
+      "AvgD20": "Avg d20", "AvgDie": "Avg die roll", "AvgTotal": "Avg total", "Luck": "Luck"
+    },
+    "Awards": { "None": "Awards appear once players have rolled at least {n} d20s." },
+    "Award": {
+      "Lucky": { "Title": "Lady Luck’s Favorite", "Flavor": "Fortune smiles upon them." },
+      "LuckyValue": "Luck {luck} (avg d20 {avg})",
+      "Cursed": { "Title": "Cursed by the Dice Gods", "Flavor": "What did they ever do to deserve this?" },
+      "CursedValue": "Luck {luck} (avg d20 {avg})",
+      "Crit": { "Title": "The Critical Machine", "Flavor": "Natural 20s on demand." },
+      "CritValue": "{n} natural 20s",
+      "Fumble": { "Title": "Fumble Royalty", "Flavor": "Long live the natural 1." },
+      "FumbleValue": "{n} natural 1s",
+      "Hog": { "Title": "The Dice Hog", "Flavor": "Leaves none for the others." },
+      "HogValue": "{n} dice rolled",
+      "Low": { "Title": "Bottom Feeder", "Flavor": "Lives beneath a 5." },
+      "LowValue": "{n} d20s under 5",
+      "High": { "Title": "High Flyer", "Flavor": "Lives above a 15." },
+      "HighValue": "{n} d20s over 15",
+      "Number": { "Title": "Lucky Number", "Flavor": "The number the dice love most." },
+      "NumberValue": "Rolled {n} times; most by {who} ({k}×)",
+      "Hot": { "Title": "Scorching Streak", "Flavor": "Absolutely on fire." },
+      "HotValue": "{n} d20s in a row of {min}+",
+      "Cold": { "Title": "Frozen Solid", "Flavor": "The dice have gone cold." },
+      "ColdValue": "{n} d20s in a row of {max} or less"
+    },
+    "Moments": { "None": "No streaks yet — keep rolling!" },
+    "Moment": {
+      "SAME": "Number Streak", "CRIT": "Crit Streak", "FUMBLE": "Fumble Streak", "HOT": "Hot Streak", "COLD": "Cold Streak",
+      "Text": "{name}: {len} in a row",
+      "TextSame": "{name} rolled {n} {len} times in a row"
+    },
+    "Live": {
+      "SAME": "{name} keeps rolling {n}! {len} times in a row: {vals}",
+      "CRIT": "{name} is on a crit streak! {len} natural 20s in a row: {vals}",
+      "FUMBLE": "{name} is fumbling! {len} natural 1s in a row: {vals}",
+      "HOT": "{name} is on a hot streak! {len} rolls of {min}+ in a row: {vals}",
+      "COLD": "{name} has gone cold. {len} rolls of {max} or less in a row: {vals}",
+      "Award": "New leader: {winner}. {value}"
+    },
+    "Chat": { "Summary": "{rolls} rolls · {dice} dice · {crits} crits · {fumbles} fumbles" },
+    "Setting": {
+      "TrackGM": "Track GM rolls", "TrackGMHint": "Include rolls made by the GM account in the statistics.",
+      "AutoStart": "Auto-start sessions", "AutoStartHint": "Automatically start a live session when a roll occurs and none is active.",
+      "AutoEnd": "Auto-end sessions", "AutoEndHint": "End and archive the live session when fewer than two people are connected. Sessions also only auto-start when at least two people are connected.",
+      "AutoEndGrace": "Auto-end delay (seconds)", "AutoEndGraceHint": "Wait this long before ending, so a page refresh or reconnect doesn't end the session.",
+      "Announce": "Announce streaks and awards in chat", "AnnounceHint": "Post crit, fumble, hot and cold streaks and new award leaders to chat as they happen.",
+      "AnnounceDelay": "Announcement delay (ms)", "AnnounceDelayHint": "Pause after a roll appears (after Dice So Nice finishes animating it) before streak and award messages are posted.",
+      "PostAwards": "Post awards on session end", "PostAwardsHint": "Post an award summary to chat when the GM ends a session.",
+      "PlayerAccess": "Players can view statistics", "PlayerAccessHint": "If disabled, only the GM can open the Dice Chronicle.",
+      "MinD20": "Minimum d20s for luck awards", "MinD20Hint": "A player needs this many d20 rolls in a session to qualify for the luck awards (doubled for campaign totals).",
+      "OpenHint": "Open the roll history, statistics and awards. Also available via Alt+J or the token controls."
+    }
+  }
+}

@@ -1,0 +1,113 @@
+<div class="chronicle-root">
+  <nav class="chronicle-tabs">
+    <button type="button" class="{{#unless isCampaign}}active{{/unless}}" data-action="setView" data-view="session"><i class="fa-solid fa-calendar-day"></i> {{localize "CHRONICLE.Tab.Session"}}</button>
+    <button type="button" class="{{#if isCampaign}}active{{/if}}" data-action="setView" data-view="campaign"><i class="fa-solid fa-book-skull"></i> {{localize "CHRONICLE.Tab.Campaign"}}</button>
+  </nav>
+
+  <header class="chronicle-bar">
+    {{#if isCampaign}}
+      <div class="chronicle-title">{{localize "CHRONICLE.Campaign.Title"}} <small>{{localize "CHRONICLE.Campaign.Sessions" n=sessionCount}}</small></div>
+    {{else if hasSession}}
+      <select name="session" aria-label="{{localize 'CHRONICLE.Session.Select'}}">
+        {{#each sessionOptions}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+      </select>
+      <span class="chronicle-range">{{sessionRange}}</span>
+    {{else}}
+      <div class="chronicle-title">{{localize "CHRONICLE.Session.None"}}</div>
+    {{/if}}
+    <span class="chronicle-spacer"></span>
+    {{#if isGM}}
+      {{#unless isCampaign}}
+        {{#unless hasLive}}<button type="button" data-action="startSession"><i class="fa-solid fa-play"></i> {{localize "CHRONICLE.Session.Start"}}</button>{{/unless}}
+        {{#if isLive}}<button type="button" data-action="endSession"><i class="fa-solid fa-flag-checkered"></i> {{localize "CHRONICLE.Session.End"}}</button>{{/if}}
+        {{#if hasSession}}
+          <button type="button" class="icon" data-action="renameSession" data-tooltip="CHRONICLE.Session.Rename"><i class="fa-solid fa-pen"></i></button>
+          <button type="button" class="icon" data-action="deleteSession" data-tooltip="CHRONICLE.Session.Delete"><i class="fa-solid fa-trash"></i></button>
+        {{/if}}
+      {{/unless}}
+    {{/if}}
+    {{#if hasData}}<button type="button" class="icon" data-action="exportSession" data-tooltip="CHRONICLE.Export"><i class="fa-solid fa-file-export"></i></button>{{/if}}
+    {{#if isGM}}{{#if isCampaign}}<button type="button" class="icon" data-action="resetAll" data-tooltip="CHRONICLE.Reset.Title"><i class="fa-solid fa-skull"></i></button>{{/if}}{{/if}}
+  </header>
+
+  <div class="chronicle-scroll">
+  {{#if hasData}}
+    <section class="chronicle-summary">
+      <div><b>{{stats.totals.rolls}}</b><span>{{localize "CHRONICLE.Stat.Rolls"}}</span></div>
+      <div><b>{{stats.totals.dice}}</b><span>{{localize "CHRONICLE.Stat.Dice"}}</span></div>
+      <div><b>{{stats.totals.avgDie}}</b><span>{{localize "CHRONICLE.Stat.AvgDie"}}</span></div>
+      <div class="crit"><b>{{stats.totals.crits}}</b><span>{{localize "CHRONICLE.Stat.Crits"}}</span></div>
+      <div class="fumble"><b>{{stats.totals.fumbles}}</b><span>{{localize "CHRONICLE.Stat.Fumbles"}}</span></div>
+      <div><b>{{stats.totals.players}}</b><span>{{localize "CHRONICLE.Stat.Players"}}</span></div>
+    </section>
+
+    <h3>{{#if isCampaign}}{{localize "CHRONICLE.Campaign.Awards"}}{{else}}{{localize "CHRONICLE.Awards"}}{{/if}}</h3>
+    {{#if awards.length}}
+    <section class="chronicle-awards">
+      {{#each awards}}
+      <article class="award award-{{id}}">
+        <i class="fa-solid {{icon}}"></i>
+        <div>
+          <h4>{{title}}</h4>
+          <div class="winner {{#if big}}big{{/if}}">{{winner}}</div>
+          <div class="value">{{value}}</div>
+          <em>{{flavor}}</em>
+        </div>
+      </article>
+      {{/each}}
+    </section>
+    {{else}}<p class="hint">{{localize "CHRONICLE.Awards.None" n=minD20}}</p>{{/if}}
+
+    <h3>{{localize "CHRONICLE.Moments"}}</h3>
+    {{#if moments.length}}
+    <ul class="chronicle-moments">
+      {{#each moments}}
+      <li class="{{cls}}">
+        <i class="fa-solid {{icon}}"></i>
+        <div><b>{{title}}</b> — {{text}}<br><span class="vals">{{vals}}</span> <small>{{when}}</small></div>
+      </li>
+      {{/each}}
+    </ul>
+    {{else}}<p class="hint">{{localize "CHRONICLE.Moments.None"}}</p>{{/if}}
+
+    <h3>{{#if isCampaign}}{{localize "CHRONICLE.Campaign.Stats"}}{{else}}{{localize "CHRONICLE.PlayerStats"}}{{/if}}</h3>
+    <table class="chronicle-table">
+      <thead><tr>
+        <th>{{localize "CHRONICLE.Stat.Player"}}</th><th>{{localize "CHRONICLE.Stat.Rolls"}}</th><th>{{localize "CHRONICLE.Stat.Dice"}}</th>
+        <th>d20</th><th class="crit">{{localize "CHRONICLE.Stat.Crits"}}</th><th class="fumble">{{localize "CHRONICLE.Stat.Fumbles"}}</th>
+        <th>{{localize "CHRONICLE.Stat.AvgD20"}}</th><th>{{localize "CHRONICLE.Stat.AvgTotal"}}</th><th>{{localize "CHRONICLE.Stat.Luck"}}</th>
+      </tr></thead>
+      <tbody>
+      {{#each players}}
+        <tr>
+          <td><b>{{name}}</b>{{#if characters}}<br><small>{{characters}}</small>{{/if}}</td>
+          <td>{{rolls}}</td><td>{{dice}}</td><td>{{d20s}}</td>
+          <td class="crit">{{crits}} <small>({{critRate}}%)</small></td>
+          <td class="fumble">{{fumbles}} <small>({{fumbleRate}}%)</small></td>
+          <td>{{avgD20}}</td><td>{{avgTotal}}</td>
+          <td><span class="luck">{{luckLabel}}</span></td>
+        </tr>
+      {{/each}}
+      </tbody>
+    </table>
+
+    {{#unless isCampaign}}
+    <h3>{{localize "CHRONICLE.RecentRolls"}}</h3>
+    <ul class="chronicle-log">
+      {{#each rolls}}
+      <li class="{{cls}}">
+        <span class="t">{{time}}</span>
+        <span class="who">{{who}}{{#if char}} <small>({{char}})</small>{{/if}}</span>
+        <span class="ty">{{type}}</span>
+        <span class="nat">{{#if nat}}d20: {{nat}}{{/if}}</span>
+        <span class="tot">{{total}}</span>
+        {{#if ../isGM}}<a data-action="deleteRoll" data-id="{{id}}" data-tooltip="CHRONICLE.DeleteRoll"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+      </li>
+      {{/each}}
+    </ul>
+    {{/unless}}
+  {{else}}
+    <p class="hint empty">{{localize "CHRONICLE.Empty"}}</p>
+  {{/if}}
+  </div>
+</div>

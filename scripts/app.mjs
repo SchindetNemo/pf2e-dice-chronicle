@@ -1,0 +1,155 @@
+import { MOD, allSessions, startSession, endSession, renameSession, deleteSession, deleteRoll, resetAll } from "./store.mjs";
+import { computeStats, describeMoment } from "./stats.mjs";
+
+const { ApplicationV2, HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
+const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
+
+export class ChronicleApp extends HandlebarsApplicationMixin(ApplicationV2) {
+  static instance = null;
+
+  static DEFAULT_OPTIONS = {
+    id: "pf2e-dice-chronicle",
+    classes: ["chronicle"],
+    position: { width: 860, height: 740 },
+    window: { title: "CHRONICLE.Title", icon: "fa-solid fa-dice-d20", resizable: true },
+    actions: {
+      setView: ChronicleApp.#onSetView,
+      startSession: ChronicleApp.#onStart,
+      endSession: ChronicleApp.#onEnd,
+      renameSession: ChronicleApp.#onRename,
+      deleteSession: ChronicleApp.#onDelete,
+      exportSession: ChronicleApp.#onExport,
+      deleteRoll: ChronicleApp.#onDeleteRoll,
+      resetAll: ChronicleApp.#onResetAll
+    }
+  };
+
+  static PARTS = { body: { template: `modules/${MOD}/templates/chronicle.hbs`, scrollable: [".chronicle-scroll"] } };
+
+  view = "session";
+  sessionId = null;
+
+  static open() {
+    if (!game.user.isGM && !game.settings.get(MOD, "playerAccess")) {
+      return ui.notifications.warn(L("CHRONICLE.NoAccess"));
+    }
+    this.instance ??= new ChronicleApp();
+    this.instance.render({ force: true });
+    return this.instance;
+  }
+
+  static refresh() {
+    if (this.instance?.rendered) this.instance.render();
+  }
+
+  get session() {
+    const sessions = allSessions();
+    return sessions.find(s => s.id === this.sessionId)
+      ?? sessions.find(s => !s.end) ?? sessions.at(-1) ?? null;
+  }
+
+  async _prepareContext() {
+    const sessions = allSessions();
+    const session = this.session;
+    const minD20 = game.settings.get(MOD, "minD20");
+    const isCampaign = this.view === "campaign";
+
+    const stats = isCampaign
+      ? computeStats(sessions.map(s => s.rolls), { minD20: minD20 * 2 })
+      : computeStats(session ? [session.rolls] : [], { minD20 });
+
+    const options = [...sessions].reverse().map(s => ({
+      id: s.id, selected: s.id === session?.id,
+      label: `${s.end ? "" : "● "}${s.name} (${s.rolls.length})`
+    }));
+
+    const rolls = (!isCampaign && session ? session.rolls.slice(-40).reverse() : []).map(r => ({
+      id: r.id,
+      time: new Date(r.ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      who: r.un, char: r.an ?? "", type: r.ty ?? "roll", total: r.tot, dice: r.d,
+      nat: r.n?.join(", ") ?? "",
+      cls: r.n?.includes(20) ? "crit" : r.n?.includes(1) ? "fumble" : ""
+    }));
+
+    return {
+      isGM: game.user.isGM,
+      isCampaign, view: this.view,
+      hasSession: !!session, session,
+      isLive: !!session && !session.end,
+      hasLive: sessions.some(s => !s.end),
+      sessionOptions: options,
+      sessionRange: session ? [new Date(session.start).toLocaleString(),
+        session.end ? new Date(session.end).toLocaleString() : L("CHRONICLE.Session.Ongoing")].join(" → ") : "",
+      sessionCount: sessions.length,
+      stats, hasData: stats.totals.rolls > 0,
+      awards: stats.awards,
+      moments: stats.moments.slice(0, isCampaign ? 15 : 12).map(describeMoment),
+      players: stats.players, rolls, minD20: isCampaign ? minD20 * 2 : minD20
+    };
+  }
+
+  _onRender() {
+    this.element.querySelector("select[name=session]")?.addEventListener("change", ev => {
+      this.sessionId = ev.target.value;
+      this.render();
+    });
+  }
+
+  static #onSetView(ev, target) { this.view = target.dataset.view; this.render(); }
+  static async #onStart() {
+    const name = await DialogV2.prompt({
+      window: { title: L("CHRONICLE.Session.Start") },
+      content: `<div class="form-group"><label>${L("CHRONICLE.Session.Name")}</label>
+        <input type="text" name="name" placeholder="${L("CHRONICLE.Session.OptionalName")}"></div>`,
+      ok: { label: L("CHRONICLE.Session.Start"), callback: (e, b) => b.form.elements.name.value.trim() },
+      rejectClose: false
+    });
+    if (name === undefined || name === null) return;
+    await startSession(name);
+    this.sessionId = null;
+  }
+  static async #onEnd() {
+    const ok = await DialogV2.confirm({
+      window: { title: L("CHRONICLE.Session.End") }, content: `<p>${L("CHRONICLE.Session.EndConfirm")}</p>`
+    });
+    if (!ok) return;
+    this.sessionId = null;
+    await endSession();
+  }
+  static async #onRename() {
+    const s = this.session; if (!s) return;
+    const name = await DialogV2.prompt({
+      window: { title: L("CHRONICLE.Session.Rename") },
+      content: `<div class="form-group"><label>${L("CHRONICLE.Session.Name")}</label>
+        <input type="text" name="name" value="${foundry.utils.escapeHTML(s.name)}" autofocus></div>`,
+      ok: { label: L("CHRONICLE.Save"), callback: (e, b) => b.form.elements.name.value.trim() },
+      rejectClose: false
+    });
+    if (name) await renameSession(s.id, name);
+  }
+  static async #onDelete() {
+    const s = this.session; if (!s) return;
+    const ok = await DialogV2.confirm({
+      window: { title: L("CHRONICLE.Session.Delete") },
+      content: `<p>${L("CHRONICLE.Session.DeleteConfirm", { name: foundry.utils.escapeHTML(s.name) })}</p>`
+    });
+    if (!ok) return;
+    this.sessionId = null;
+    await deleteSession(s.id);
+  }
+  static #onExport() {
+    const sessions = this.view === "campaign" ? allSessions() : [this.session].filter(Boolean);
+    if (!sessions.length) return;
+    const name = this.view === "campaign" ? "campaign" : sessions[0].name.slugify();
+    foundry.utils.saveDataToFile(JSON.stringify(sessions, null, 2), "application/json", `dice-chronicle-${name}.json`);
+  }
+  static async #onDeleteRoll(ev, target) {
+    const s = this.session; if (s) await deleteRoll(s.id, target.dataset.id);
+  }
+  static async #onResetAll() {
+    const ok = await DialogV2.confirm({
+      window: { title: L("CHRONICLE.Reset.Title") }, content: `<p>${L("CHRONICLE.Reset.Confirm")}</p>`
+    });
+    if (ok) { this.sessionId = null; await resetAll(); }
+  }
+}
