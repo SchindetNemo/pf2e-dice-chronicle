@@ -15,14 +15,13 @@ export function extractEntry(message) {
   const type = ctx.type ?? null;
   const isDamage = D20_EXCLUDED.has(type);
 
-  let dice = 0, diceSum = 0;
+  let dice = 0;
   const naturals = [];
   for (const roll of rolls) {
     if (!roll?.terms) continue;
     for (const term of roll.dice ?? []) {
       const results = term.results ?? [];
       dice += results.length;
-      for (const r of results) diceSum += Number(r.result) || 0;
       if (term.faces === 20 && !isDamage && results.length) {
         const kept = results.find(r => r.active !== false && !r.discarded) ?? results[0];
         naturals.push(kept.result);
@@ -42,7 +41,6 @@ export function extractEntry(message) {
     ot: ctx.outcome ?? null,
     tot: rolls[0]?.total ?? 0,
     d: dice,
-    ds: diceSum,
     n: naturals
   };
 }
