@@ -41,9 +41,29 @@ export function sameRuns(seq, min = MIN_SAME) {
   return out;
 }
 
-/** Luck score 0-100, 50 = perfectly average d20 (mean 10.5). */
-export function luckScore(mean) {
-  return Math.max(0, Math.min(100, Math.round(50 + (mean - 10.5) * 5)));
+const D20_MEAN = 10.5;
+const D20_SD = Math.sqrt((20 * 20 - 1) / 12); // ≈ 5.766
+
+/** Standard normal CDF (Abramowitz–Stegun). */
+function phi(z) {
+  const t = 1 / (1 + 0.2316419 * Math.abs(z));
+  const d = 0.3989423 * Math.exp((-z * z) / 2);
+  const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+  return z > 0 ? 1 - p : p;
+}
+
+/** How many standard errors the average of n natural d20s sits from a fair d20. */
+export function luckZ(mean, n) {
+  return n ? (mean - D20_MEAN) / (D20_SD / Math.sqrt(n)) : 0;
+}
+
+/**
+ * Luck score 0-100: the chance that a fair d20 would have averaged *lower* than this player
+ * over the same number of rolls. 50 = typical, 95+ = rolled better than almost every fair
+ * run of that length, 5- = worse than almost every one.
+ */
+export function luckScore(mean, n) {
+  return Math.round(phi(luckZ(mean, n)) * 100);
 }
 
 /**
@@ -56,13 +76,13 @@ export function computeStats(rollSets, { minD20 = 5 } = {}) {
   const faceCounts = new Map(); // face -> {total, byUser: Map}
   const moments = [];
   const bestRuns = new Map();   // userId -> {hot, cold}
-  let totalRolls = 0, totalDice = 0, sumDice = 0, sumCount = 0;
+  let totalRolls = 0, totalDice = 0;
 
   const get = (r) => {
     if (!players.has(r.u)) {
       players.set(r.u, {
         id: r.u, name: r.un, characters: new Set(), rolls: 0, dice: 0, d20s: 0,
-        hist: Array(20).fill(0), d20Sum: 0, low: 0, high: 0, crits: 0, fumbles: 0, totalSum: 0,
+        hist: Array(20).fill(0), d20Sum: 0, checkSum: 0, checkRolls: 0, low: 0, high: 0, crits: 0, fumbles: 0, totalSum: 0,
         best: null, worst: null, successes: 0, critSuccesses: 0, failures: 0, critFailures: 0
       });
     }
@@ -78,7 +98,7 @@ export function computeStats(rollSets, { minD20 = 5 } = {}) {
       p.rolls++; totalRolls++;
       p.dice += r.d ?? 0; totalDice += r.d ?? 0;
       p.totalSum += r.tot ?? 0;
-      if (r.ds !== undefined) { sumDice += r.ds; sumCount += r.d ?? 0; }
+      if (r.n?.length) { p.checkSum += r.tot ?? 0; p.checkRolls++; } // d20 rolls only
       if (r.ot === "criticalSuccess") p.critSuccesses++;
       else if (r.ot === "success") p.successes++;
       else if (r.ot === "failure") p.failures++;
@@ -125,13 +145,13 @@ export function computeStats(rollSets, { minD20 = 5 } = {}) {
       ...p,
       characters: [...p.characters].join(", "),
       avgD20: p.d20s ? round(mean) : "–",
-      avgTotal: p.rolls ? round(p.totalSum / p.rolls) : "–",
+      avgTotal: p.checkRolls ? round(p.checkSum / p.checkRolls) : "–",
       critRate: p.d20s ? round((p.crits / p.d20s) * 100) : 0,
       fumbleRate: p.d20s ? round((p.fumbles / p.d20s) * 100) : 0,
-      luck: p.d20s ? luckScore(mean) : null,
-      luckLabel: p.d20s ? String(luckScore(mean)) : "–",
+      luck: p.d20s ? luckScore(mean, p.d20s) : null,
+      luckLabel: p.d20s ? String(luckScore(mean, p.d20s)) : "–",
       hotStreak: br.hot, coldStreak: br.cold,
-      _mean: mean
+      _mean: mean, _z: luckZ(mean, p.d20s)
     };
   }).sort((a, b) => b.rolls - a.rolls);
 
@@ -139,7 +159,7 @@ export function computeStats(rollSets, { minD20 = 5 } = {}) {
   const sorted = sortMoments(moments);
   return {
     players: list, awards, moments: sorted,
-    totals: { rolls: totalRolls, dice: totalDice, avgDie: sumCount ? round(sumDice / sumCount, 2) : "–", players: list.length,
+    totals: { rolls: totalRolls, dice: totalDice, avgDie: list.some(p => p.d20s) ? round(list.reduce((s, p) => s + p.d20Sum, 0) / list.reduce((s, p) => s + p.d20s, 0), 2) : "–", players: list.length,
       crits: list.reduce((s, p) => s + p.crits, 0), fumbles: list.reduce((s, p) => s + p.fumbles, 0) }
   };
 }
@@ -189,12 +209,12 @@ function computeAwards(players, faceCounts, minD20) {
   };
 
   const eligible = players.filter(p => p.d20s >= minD20);
-  const lucky = pickMax(eligible, p => p._mean);
-  const cursed = pickMax(eligible, p => p._mean, { reverse: true });
+  const lucky = pickMax(eligible, p => p._z);
+  const cursed = pickMax(eligible, p => p._z, { reverse: true });
   if (lucky) add("Lucky", "fa-clover", lucky,
-    L("CHRONICLE.Award.LuckyValue", { luck: luckScore(lucky.value), avg: round(lucky.value) }));
+    L("CHRONICLE.Award.LuckyValue", { luck: lucky.winners[0].luck, avg: lucky.winners[0].avgD20 }));
   if (cursed && lucky && cursed.value < lucky.value) add("Cursed", "fa-ghost", cursed,
-    L("CHRONICLE.Award.CursedValue", { luck: luckScore(cursed.value), avg: round(cursed.value) }));
+    L("CHRONICLE.Award.CursedValue", { luck: cursed.winners[0].luck, avg: cursed.winners[0].avgD20 }));
 
   const crit = pickMax(players, p => p.crits);
   add("Crit", "fa-bolt", crit, crit && L("CHRONICLE.Award.CritValue", { n: crit.value }));

@@ -25,7 +25,7 @@
     "Reset": { "Title": "Reset All Data", "Confirm": "Permanently delete ALL sessions and statistics? This cannot be undone." },
     "Stat": {
       "Player": "Player", "Rolls": "Rolls", "Dice": "Dice", "Crits": "Crits", "Fumbles": "Fumbles", "Players": "Players",
-      "AvgD20": "Avg d20", "AvgDie": "Avg die roll", "AvgTotal": "Avg total", "Luck": "Luck"
+      "AvgD20": "Avg d20", "AvgDie": "Avg d20 roll", "AvgTotal": "Avg total", "Luck": "Luck"
     },
     "AwardsNone": "Awards appear once players have rolled at least {n} d20s.",
     "Award": {

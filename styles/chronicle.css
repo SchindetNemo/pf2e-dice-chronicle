@@ -53,10 +53,10 @@
 .chronicle-table small { opacity: .65; }
 .chronicle .luck { display: inline-block; min-width: 2.4em; padding: 1px 6px; border-radius: 10px; background: #8882; font-weight: bold; }
 
-.chronicle-log li { display: grid; grid-template-columns: 52px 1fr 110px 90px 40px 18px; gap: 6px; padding: 3px 4px; font-size: .85em; border-bottom: 1px solid #8882; }
+.chronicle-log li { display: grid; grid-template-columns: 52px 1fr 110px 60px 18px; gap: 6px; padding: 3px 4px; font-size: .85em; border-bottom: 1px solid #8882; }
 .chronicle-log li.crit { background: #2e9e5b22; } .chronicle-log li.fumble { background: #c0392b22; }
 .chronicle-log .t, .chronicle-log .ty { opacity: .65; }
-.chronicle-log .tot { text-align: right; font-weight: bold; }
+.chronicle-log .nat { text-align: right; font-weight: bold; }
 .chronicle-log a { opacity: .4; } .chronicle-log a:hover { opacity: 1; color: var(--c-fumble); }
 
 .chronicle-chat ul { margin: 4px 0 0 16px; padding: 0; }
