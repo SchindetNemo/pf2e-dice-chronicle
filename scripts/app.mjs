@@ -101,7 +101,7 @@ export class ChronicleApp extends HandlebarsApplicationMixin(ApplicationV2) {
       label: `${s.end ? "" : "● "}${s.name} (${s.rolls.length})`
     }));
 
-    const rolls = (!useCampaign && !isDice && session ? session.rolls.slice(-40).reverse() : []).map(r => ({
+    const rolls = (!useCampaign && !isDice && session ? session.rolls.slice(-25).reverse() : []).map(r => ({
       id: r.id,
       time: new Date(r.ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       who: r.un, char: r.an ?? "", type: r.ty ?? "roll", total: r.tot, dice: r.d,
