@@ -43,18 +43,6 @@
   <div class="chronicle-scroll">
   {{#if isDice}}
     {{#if hasData}}
-      {{#if awards.length}}
-      <h3>{{#if diceCampaign}}{{localize "CHRONICLE.Campaign.Awards"}}{{else}}{{localize "CHRONICLE.Awards"}}{{/if}}</h3>
-      <section class="chronicle-awards">
-        {{#each awards}}
-        <article class="award award-{{id}}">
-          <i class="fa-solid {{icon}}"></i>
-          <div><h4>{{title}}</h4><div class="winner {{#if big}}big{{/if}}">{{winner}}</div><div class="value">{{value}}</div><em>{{flavor}}</em></div>
-        </article>
-        {{/each}}
-      </section>
-      {{/if}}
-
       {{#if table}}
       <h3>{{localize "CHRONICLE.DiceStats.Table"}} <small>({{table.d20s}} d20)</small></h3>
       <div class="dice-card">

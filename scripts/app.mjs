@@ -95,7 +95,11 @@ export class ChronicleApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const tableHist = Array(20).fill(0);
     for (const p of stats.players) p.hist.forEach((c, i) => (tableHist[i] += c));
     const dicePlayers = isDice ? stats.players.filter(p => p.d20s > 0).sort((a, b) => b.d20s - a.d20s)
-      .map(p => ({ ...p, bars: bars(p.hist), favorite: favorite(p.hist) })) : [];
+      .map(p => ({
+        ...p, bars: bars(p.hist), favorite: favorite(p.hist),
+        // In campaign scope the GM's many token names are just noise
+        characters: useCampaign && game.users.get(p.id)?.isGM ? "" : p.characters
+      })) : [];
     const table = isDice && tableHist.some(Boolean)
       ? { bars: bars(tableHist), favorite: favorite(tableHist), d20s: tableHist.reduce((a, b) => a + b, 0) } : null;
 
