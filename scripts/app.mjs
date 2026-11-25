@@ -55,6 +55,15 @@ export class ChronicleApp extends HandlebarsApplicationMixin(ApplicationV2) {
       ?? sessions.find(s => !s.end) ?? sessions.at(-1) ?? null;
   }
 
+  /** Sessions tab: every GM token is its own "player", listed after the human players. */
+  #sessionRollSets(session) {
+    if (!session) return [];
+    if (this.view !== "session") return [session.rolls];
+    const token = L("CHRONICLE.GMToken");
+    return [session.rolls.map(r => (game.users.get(r.u)?.isGM
+      ? { ...r, u: `${r.u}:${r.an ?? ""}`, un: r.an ?? r.un, an: token, g: true } : r))];
+  }
+
   async _prepareContext() {
     const sessions = allSessions();
     const session = this.session;
@@ -65,7 +74,8 @@ export class ChronicleApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
     const stats = useCampaign
       ? computeStats(sessions.map(s => s.rolls), { minD20: minD20 * 2 })
-      : computeStats(session ? [session.rolls] : [], { minD20 });
+      : computeStats(this.#sessionRollSets(session), { minD20 });
+    if (this.view === "session") stats.players.sort((a, b) => Number(a.gm) - Number(b.gm) || b.rolls - a.rolls);
 
     // The GM's token names would swamp the Campaign and Dice tabs, so hide them there (GM only).
     if (isCampaign || isDice) {

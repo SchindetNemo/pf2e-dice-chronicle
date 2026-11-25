@@ -1,6 +1,7 @@
 {
   "CHRONICLE": {
     "Title": "Dice Chronicle",
+    "GMToken": "GM token",
     "Open": "Open Dice Chronicle",
     "Save": "Save",
     "Export": "Export as JSON",

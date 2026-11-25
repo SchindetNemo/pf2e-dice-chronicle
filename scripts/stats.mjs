@@ -81,7 +81,7 @@ export function computeStats(rollSets, { minD20 = 5 } = {}) {
   const get = (r) => {
     if (!players.has(r.u)) {
       players.set(r.u, {
-        id: r.u, name: r.un, characters: new Set(), rolls: 0, dice: 0, d20s: 0,
+        id: r.u, name: r.un, gm: !!r.g, characters: new Set(), rolls: 0, dice: 0, d20s: 0,
         hist: Array(20).fill(0), d20Sum: 0, checkSum: 0, checkRolls: 0, low: 0, high: 0, crits: 0, fumbles: 0, totalSum: 0,
         best: null, worst: null, successes: 0, critSuccesses: 0, failures: 0, critFailures: 0
       });
@@ -220,7 +220,7 @@ function computeAwards(players, faceCounts, minD20) {
   add("Crit", "fa-bolt", crit, crit && L("CHRONICLE.Award.CritValue", { n: crit.value }));
   const fum = pickMax(players, p => p.fumbles);
   add("Fumble", "fa-skull-crossbones", fum, fum && L("CHRONICLE.Award.FumbleValue", { n: fum.value }));
-  const hog = pickMax(players.filter(p => !game.users.get(p.id)?.isGM), p => p.dice); // GM never wins the Dice Hog
+  const hog = pickMax(players.filter(p => !p.gm && !game.users.get(p.id)?.isGM), p => p.dice); // GM never wins the Dice Hog
   add("Hog", "fa-dice", hog, hog && L("CHRONICLE.Award.HogValue", { n: hog.value }));
 
   const low = pickMax(players, p => p.low);
