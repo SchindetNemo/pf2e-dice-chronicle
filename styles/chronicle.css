@@ -51,6 +51,7 @@
 .chronicle-table th, .chronicle-table td { padding: 4px 6px; border-bottom: 1px solid #8883; }
 .chronicle-table th:first-child, .chronicle-table td:first-child { text-align: left; }
 .chronicle-table small { opacity: .65; }
+.chronicle [data-tooltip="CHRONICLE.LuckTip"] { cursor: help; }
 .chronicle .luck { display: inline-block; min-width: 2.4em; padding: 1px 6px; border-radius: 10px; background: #8882; font-weight: bold; }
 
 .chronicle-log li { display: grid; grid-template-columns: 52px 1fr 110px 60px 18px; gap: 6px; padding: 3px 4px; font-size: .85em; border-bottom: 1px solid #8882; }

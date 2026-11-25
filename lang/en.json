@@ -2,6 +2,7 @@
   "CHRONICLE": {
     "Title": "Dice Chronicle",
     "GMToken": "GM token",
+    "LuckTip": "Shows how unlikely the d20 rolls are.<br>• 50 is typical.<br>• 95 or more: rolled better than almost every fair run of dice of that length.<br>• 5 or less: rolled worse than almost every fair run.",
     "Open": "Open Dice Chronicle",
     "Save": "Save",
     "Export": "Export as JSON",

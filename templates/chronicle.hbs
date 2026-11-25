@@ -57,7 +57,7 @@
       <h3>{{name}}{{#if characters}} <small>({{characters}})</small>{{/if}}</h3>
       <div class="dice-card">
         <div class="dice-meta">
-          {{d20s}} d20 · {{localize "CHRONICLE.Stat.AvgD20"}} <b>{{avgD20}}</b> · {{localize "CHRONICLE.Stat.Luck"}} <b>{{luckLabel}}</b> ·
+          {{d20s}} d20 · {{localize "CHRONICLE.Stat.AvgD20"}} <b>{{avgD20}}</b> · <span data-tooltip="CHRONICLE.LuckTip">{{localize "CHRONICLE.Stat.Luck"}} <b>{{luckLabel}}</b></span> ·
           <span class="crit">{{crits}} {{localize "CHRONICLE.Stat.Crits"}}</span> · <span class="fumble">{{fumbles}} {{localize "CHRONICLE.Stat.Fumbles"}}</span> ·
           {{localize "CHRONICLE.DiceStats.Favorite"}}: <b>{{favorite}}</b> · {{dice}} {{localize "CHRONICLE.Stat.Dice"}} total
         </div>
@@ -113,7 +113,7 @@
       <thead><tr>
         <th>{{localize "CHRONICLE.Stat.Player"}}</th><th>{{localize "CHRONICLE.Stat.Rolls"}}</th><th>{{localize "CHRONICLE.Stat.Dice"}}</th>
         <th>d20</th><th class="crit">{{localize "CHRONICLE.Stat.Crits"}}</th><th class="fumble">{{localize "CHRONICLE.Stat.Fumbles"}}</th>
-        <th>{{localize "CHRONICLE.Stat.AvgD20"}}</th><th>{{localize "CHRONICLE.Stat.AvgTotal"}}</th><th>{{localize "CHRONICLE.Stat.Luck"}}</th>
+        <th>{{localize "CHRONICLE.Stat.AvgD20"}}</th><th>{{localize "CHRONICLE.Stat.AvgTotal"}}</th><th data-tooltip="CHRONICLE.LuckTip">{{localize "CHRONICLE.Stat.Luck"}}</th>
       </tr></thead>
       <tbody>
       {{#each players}}
@@ -123,7 +123,7 @@
           <td class="crit">{{crits}} <small>({{critRate}}%)</small></td>
           <td class="fumble">{{fumbles}} <small>({{fumbleRate}}%)</small></td>
           <td>{{avgD20}}</td><td>{{avgTotal}}</td>
-          <td><span class="luck">{{luckLabel}}</span></td>
+          <td><span class="luck" data-tooltip="CHRONICLE.LuckTip">{{luckLabel}}</span></td>
         </tr>
       {{/each}}
       </tbody>
